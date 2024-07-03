@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "c5dc8f27-3b0e-4492-9ce8-3009debc774d",
+  "id": "e7a84d25-208e-4ee0-ae0a-f13ba1450487",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "articles": {
@@ -44,8 +44,8 @@
           "notNull": true,
           "autoincrement": true
         },
-        "warningId": {
-          "name": "warningId",
+        "warningVehicleId": {
+          "name": "warningVehicleId",
           "type": "bigint",
           "primaryKey": false,
           "notNull": true,
@@ -62,12 +62,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "dailyWarningSends_warningId_dailyWarnings_id_fk": {
-          "name": "dailyWarningSends_warningId_dailyWarnings_id_fk",
+        "dailyWarningSends_warningVehicleId_dailyWarningsRoad_id_fk": {
+          "name": "dailyWarningSends_warningVehicleId_dailyWarningsRoad_id_fk",
           "tableFrom": "dailyWarningSends",
-          "tableTo": "dailyWarnings",
+          "tableTo": "dailyWarningsRoad",
           "columnsFrom": [
-            "warningId"
+            "warningVehicleId"
           ],
           "columnsTo": [
             "id"
@@ -124,6 +124,29 @@
           "notNull": true,
           "autoincrement": false
         },
+        "dailyWarningsId": {
+          "name": "dailyWarningsId",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "warningRoadLimit": {
+          "name": "warningRoadLimit",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "dailyWarningsLevelId": {
+          "name": "dailyWarningsLevelId",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "warningType": {
           "name": "warningType",
           "type": "varchar(256)",
@@ -144,6 +167,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "isChecked": {
+          "name": "isChecked",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
         },
         "isDeleted": {
           "name": "isDeleted",
@@ -253,6 +284,151 @@
       "compositePrimaryKeys": {
         "dailyWarningsDate_id": {
           "name": "dailyWarningsDate_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "dailyWarningsLevel": {
+      "name": "dailyWarningsLevel",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "warningLevel": {
+          "name": "warningLevel",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "isDeleted": {
+          "name": "isDeleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "dateCreated": {
+          "name": "dateCreated",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "dateUpdated": {
+          "name": "dateUpdated",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "dateDeleted": {
+          "name": "dateDeleted",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "dailyWarningsLevel_id": {
+          "name": "dailyWarningsLevel_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "dailyWarningsRoad": {
+      "name": "dailyWarningsRoad",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "vehicleName": {
+          "name": "vehicleName",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "isDeleted": {
+          "name": "isDeleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "dateCreated": {
+          "name": "dateCreated",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "dateUpdated": {
+          "name": "dateUpdated",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "dateDeleted": {
+          "name": "dateDeleted",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "dailyWarningsId": {
+          "name": "dailyWarningsId",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "dailyWarningsRoad_dailyWarningsId_dailyWarnings_id_fk": {
+          "name": "dailyWarningsRoad_dailyWarningsId_dailyWarnings_id_fk",
+          "tableFrom": "dailyWarningsRoad",
+          "tableTo": "dailyWarnings",
+          "columnsFrom": [
+            "dailyWarningsId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "dailyWarningsRoad_id": {
+          "name": "dailyWarningsRoad_id",
           "columns": [
             "id"
           ]

@@ -1,4 +1,4 @@
-import { IsString, IsDate,IsInt, IsNotEmpty, IsOptional } from 'class-validator'
+import { IsString, IsInt, IsNotEmpty, IsOptional } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 
 export class CreateDailyWarningDto {
@@ -7,29 +7,65 @@ export class CreateDailyWarningDto {
   @IsString()
   @IsNotEmpty()
   warningName: string
-  
-  @ApiProperty()
-  @IsInt()
-  @IsOptional()
-  warningExpired?: number
 
   @ApiProperty()
   @IsInt()
   @IsOptional()
-  warningPreviousExpired?: number
+  warningExpired?: number | null
 
   @ApiProperty()
-  @IsInt()
   @IsOptional()
-  warningPreviousExpiredNum?: number
+  warningPreviousExpired?: number | null
+
+  @ApiProperty()
+  @IsOptional()
+  warningPreviousExpiredNum?: number | string | null
 
   @ApiProperty()
   @IsString()
   @IsOptional()
-  warningType?: string
-
-  @ApiProperty()
-  @IsString()
   @IsNotEmpty()
-  warningDescription: string
+  warningType?: string | null
+
+  @ApiProperty()
+  @IsInt()
+  @IsOptional()
+  warningLevel?: number | null
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  warningDescription?: string | null
+
+  @ApiProperty()
+  @IsOptional()
+  warningExpiredKm?: number | string | null
+
+  @ApiProperty()
+  @IsOptional()
+  warningPreviousExpiredNumKm?: number | string | null
+
+  @ApiProperty()
+  @IsOptional()
+  warningAlert?: number | string | null
+
+  @ApiProperty()
+  @IsOptional()
+  isChecked?: boolean | number
+
+  @ApiProperty()
+  @IsOptional()
+  vehicles?: any
+}
+
+export class ParamDailyWarningDto {
+
+  @ApiProperty()
+  @IsString()
+  vehicle?: string
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  search?: string | null
 }

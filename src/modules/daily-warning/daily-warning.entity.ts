@@ -15,14 +15,14 @@ class IParamDailyWarningFilter {
     vehicle?: string
     search?: string
     isCheck?: boolean
-     
+
     constructor(vehicle?: string,
         search?: string,
         isCheck?: boolean) {
-            this.vehicle = vehicle
-            this.search = search
-            this.isCheck = isCheck ? true : false
-        }
+        this.vehicle = vehicle
+        this.search = search
+        this.isCheck = isCheck ? true : false
+    }
 }
 
 
@@ -91,7 +91,7 @@ class IDailyWarningAdd {
     ) {
         const { warningName, warningExpired, warningPreviousExpired, warningType, warningDescription, warningPreviousExpiredNum, vehicles, isChecked, warningExpiredKm, warningPreviousExpiredNumKm, warningAlert } = dailyWarning
         this.warningName = warningName
-        this.warningExpired = new Date(warningExpired * 1000)
+        this.warningExpired = new Date((parseInt(`${warningExpired}`) ?? 0) * 1000)
         this.warningPreviousExpired = new Date(warningPreviousExpired)
         this.warningType = warningType
         this.warningDescription = warningDescription
@@ -126,6 +126,14 @@ type IDailyWarningsItem = {
     useId: number
 }
 
+interface ISwitchDailyWarning {
+    id: number
+    isEnabled?: boolean
+    isVehicle?: boolean
+    nameVehicle?: string
+}
+
+
 export {
     DailyWarning,
     DailyWarningAdd,
@@ -136,5 +144,6 @@ export {
     IDailyWarningsItemRes,
     IVehicleDailyWarning,
     IParamDailyWarning,
-    IParamDailyWarningFilter
+    IParamDailyWarningFilter,
+    ISwitchDailyWarning
 }

@@ -37,6 +37,7 @@ const dailyWarnings = mysqlTable('dailyWarnings', {
   userId: bigint('userId', { mode: 'number' }).notNull(),
   isChecked: boolean('isChecked').default(false),
   isDeleted: boolean('isDeleted').default(false),
+  isEnabled: boolean('isEnabled').default(false),
   dateCreated: timestamp('dateCreated').notNull().defaultNow(),
   dateUpdated: timestamp('dateUpdated').notNull().defaultNow(),
   dateDeleted: timestamp('dateDeleted').notNull().defaultNow()
@@ -48,6 +49,7 @@ const dailyWarningsVehicle = mysqlTable('dailyWarningsRoad', {
   id: bigint('id', { mode: 'number' }).primaryKey().autoincrement(),
   vehicleName: varchar('vehicleName', { length: 256 }).notNull(),
   isDeleted: boolean('isDeleted').default(false),
+  isEnabled: boolean('isEnabled').default(false),
   dateCreated: timestamp('dateCreated').notNull().defaultNow(),
   dateUpdated: timestamp('dateUpdated').notNull().defaultNow(),
   dateDeleted: timestamp('dateDeleted').notNull().defaultNow(),

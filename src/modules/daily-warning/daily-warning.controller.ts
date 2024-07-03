@@ -15,7 +15,7 @@ import {
 import { ApiOperation, ApiOkResponse } from '@nestjs/swagger'
 import { DailyWarningService } from './daily-warning.service'
 import { DailyWarning } from './daily-warning.entity'
-import { CreateDailyWarningDto, CreateVehicleDailyWarningDto, ParamDailyWarningDto } from './dto'
+import { CreateDailyWarningDto, CreateVehicleDailyWarningDto, PutSwitchDailyWarningDto } from './dto'
 import { DailyWarningAdd, IDailyWarningAdd, IParamDailyWarningFilter } from './daily-warning.entity'
 import { toNumber } from '@/utilities'
 
@@ -75,12 +75,16 @@ export class DailyWarningController {
     @Body() dailyWarning: CreateDailyWarningDto,
     @Request() request
   ) {
-    console.log('====================================');
-    console.log(dailyWarning);
-    console.log('====================================');
     const userId: number = toNumber(request.userId)
     const dailyWarningIndex: DailyWarningAdd = new IDailyWarningAdd(dailyWarning, userId)
     return this.dailyWarningService.update(id, dailyWarningIndex)
+  }
+
+  @Put('/switch')
+  updateSwitch(
+    @Body() switchDailyWarningDto: PutSwitchDailyWarningDto
+  ) {
+    return this.dailyWarningService.updateSwitch(switchDailyWarningDto)
   }
 
   @Delete(':id')

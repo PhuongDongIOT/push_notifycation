@@ -9,7 +9,6 @@ export class CreateDailyWarningDto {
   warningName: string
 
   @ApiProperty()
-  @IsInt()
   @IsOptional()
   warningExpired?: number | null
 

@@ -3,7 +3,7 @@ import { eq, and, exists, inArray, notInArray, or, like, sql, aliasedTable } fro
 
 import { databaseSchema } from '@/core/database/databaseSchema'
 import { DrizzleService } from '@/core/database/drizzle.service'
-import { DailyWarningAdd, IIDailyWarningAdd, IDailyWarningsRes, IVehicleDailyWarning, IParamDailyWarning } from './daily-warning.entity'
+import { DailyWarningAdd, IIDailyWarningAdd, IDailyWarningsRes, IVehicleDailyWarning, IParamDailyWarning, ISwitchDailyWarning } from './daily-warning.entity'
 import { checkIsArrayEmpty } from '@/utilities'
 import { jsonSucecced } from './constant'
 
@@ -32,6 +32,7 @@ export class DailyWarningService {
         warningExpiredKm: this.DTdailyWarnings.warningRoad,
         warningPreviousExpiredNumKm: this.DTdailyWarnings.warningRoadLimit,
         isChecked: this.DTdailyWarnings.isChecked,
+        isEnabled: this.DTdailyWarnings.isEnabled,
         warningDescription: this.DTdailyWarnings.warningDescription,
         warningPreviousExpiredNum: this.DTdailyWarnings.warningPreviousExpiredNum
       })
@@ -45,17 +46,19 @@ export class DailyWarningService {
 
   async getWarningVehicle(userId: number, paramsFilter: IParamDailyWarning) {
 
+    const { vehicle, isCheck } = paramsFilter
+
     const query = await this.drizzleService.db
       .select({
         id: this.DTdailyWarningsVehicle.dailyWarningsId
       })
       .from(this.DTdailyWarningsVehicle)
-      .where(eq(this.DTdailyWarningsVehicle.vehicleName, paramsFilter.vehicle))
+      .where(eq(this.DTdailyWarningsVehicle.vehicleName, vehicle))
 
     let stringArr = query.map((item, index) => item.id)
     if (!checkIsArrayEmpty(stringArr)) stringArr.push(0)
 
-    if (paramsFilter.isCheck) {
+    if (isCheck) {
       const dailyWarnings = await this.drizzleService.db
         .select({
           id: this.DTdailyWarnings.id,
@@ -66,6 +69,7 @@ export class DailyWarningService {
           warningExpiredKm: this.DTdailyWarnings.warningRoad,
           warningPreviousExpiredNumKm: this.DTdailyWarnings.warningRoadLimit,
           isChecked: this.DTdailyWarnings.isChecked,
+          isEnabled: this.DTdailyWarningsVehicle.isEnabled,
           warningDescription: this.DTdailyWarnings.warningDescription,
           warningPreviousExpiredNum: this.DTdailyWarnings.warningPreviousExpiredNum
         })
@@ -85,13 +89,15 @@ export class DailyWarningService {
           warningExpiredKm: this.DTdailyWarnings.warningRoad,
           warningPreviousExpiredNumKm: this.DTdailyWarnings.warningRoadLimit,
           isChecked: this.DTdailyWarnings.isChecked,
+          isEnabled: this.DTdailyWarningsVehicle.isEnabled,
           warningDescription: this.DTdailyWarnings.warningDescription,
           warningPreviousExpiredNum: this.DTdailyWarnings.warningPreviousExpiredNum
         })
         .from(this.DTdailyWarnings)
         .leftJoin(this.DTdailyWarningsDate, eq(this.DTdailyWarnings.warningExpiredId, this.DTdailyWarningsDate.id))
         .leftJoin(this.DTVdailyWarningsDate, eq(this.DTdailyWarnings.warningPreviousExpiredId, this.DTVdailyWarningsDate.id))
-        .where(and(eq(this.DTdailyWarnings.userId, userId), inArray(this.DTdailyWarnings.id, stringArr), like(this.DTdailyWarnings.warningName, `%${paramsFilter.search ? paramsFilter.search : ''}%`)))
+        .leftJoin(this.DTdailyWarningsVehicle, eq(this.DTdailyWarningsVehicle.dailyWarningsId, this.DTdailyWarnings.id))
+        .where(and(eq(this.DTdailyWarningsVehicle.vehicleName, vehicle), eq(this.DTdailyWarnings.userId, userId), inArray(this.DTdailyWarnings.id, stringArr), like(this.DTdailyWarnings.warningName, `%${paramsFilter.search ? paramsFilter.search : ''}%`)))
       return dailyWarnings
     }
   }
@@ -111,7 +117,7 @@ export class DailyWarningService {
       .innerJoin(this.DTdailyWarnings, eq(this.DTdailyWarnings.warningPreviousExpiredId, this.DTdailyWarningsDate.id))
       .leftJoin(this.DTdailyWarningsVehicle, eq(this.DTdailyWarnings.id, this.DTdailyWarningsVehicle.dailyWarningsId))
       .innerJoin(this.DTdailyWarningSends, eq(this.DTdailyWarningsVehicle.id, this.DTdailyWarningSends.warningVehicleId))
-
+      .where(and(eq(this.DTdailyWarnings.isChecked, false), eq(this.DTdailyWarnings.isEnabled, false)))
     return dailyWarnings
   }
 
@@ -130,6 +136,7 @@ export class DailyWarningService {
       .innerJoin(this.DTdailyWarnings, eq(this.DTdailyWarningsVehicle.dailyWarningsId, this.DTdailyWarnings.id))
       .leftJoin(this.DTdailyWarningsDate, eq(this.DTdailyWarnings.warningPreviousExpiredId, this.DTdailyWarningsDate.id))
       .innerJoin(this.DTdailyWarningSends, eq(this.DTdailyWarningsVehicle.id, this.DTdailyWarningSends.warningVehicleId))
+      .where(and(eq(this.DTdailyWarnings.isChecked, true), eq(this.DTdailyWarnings.isEnabled, false), eq(this.DTdailyWarningsVehicle.isEnabled, false)))
 
     return dailyWarnings
   }
@@ -301,7 +308,7 @@ export class DailyWarningService {
             warningExpiredId: warningExpiredIdIndex,
             warningPreviousExpiredId: warningPreviousExpiredIdIndex,
             warningRoad: warningExpiredKm,
-            warningRoadLimit: warningExpiredKm,
+            warningRoadLimit: warningPreviousExpiredNumKm,
             isChecked: isChecked
           })
           .where(eq(databaseSchema.dailyWarnings.id, id))
@@ -309,20 +316,20 @@ export class DailyWarningService {
         const index = warningExpiredId[0].affectedRows
         if (checkIsArrayEmpty(vehicles)) {
           const vehicleList = await tx
-          .select({
-            id: this.DTdailyWarningsVehicle.id
-          })
-          .from(this.DTdailyWarningsVehicle)
-          .where(sql`${this.DTdailyWarningsVehicle.dailyWarningsId} = ${index}`)
+            .select({
+              id: this.DTdailyWarningsVehicle.id
+            })
+            .from(this.DTdailyWarningsVehicle)
+            .where(sql`${this.DTdailyWarningsVehicle.dailyWarningsId} = ${index}`)
           const listVehicleId: Array<number> = vehicleList.map((item) => item.id)
-          if(checkIsArrayEmpty(listVehicleId)) {
+          if (checkIsArrayEmpty(listVehicleId)) {
             await tx
-            .delete(this.DTdailyWarningSends)            
-            .where(inArray(this.DTdailyWarningSends.warningVehicleId, listVehicleId))
+              .delete(this.DTdailyWarningSends)
+              .where(inArray(this.DTdailyWarningSends.warningVehicleId, listVehicleId))
 
-          await tx
-            .delete(this.DTdailyWarningsVehicle)
-            .where(eq(this.DTdailyWarningsVehicle.dailyWarningsId, index))
+            await tx
+              .delete(this.DTdailyWarningsVehicle)
+              .where(eq(this.DTdailyWarningsVehicle.dailyWarningsId, index))
           }
 
           for (let item of vehicles) {
@@ -349,19 +356,33 @@ export class DailyWarningService {
         return jsonSucecced
 
       } catch (error) {
-        console.log('====================================');
-        console.log(error);
-        console.log('====================================');
         throw new NotFoundException()
       }
     })
   }
 
+  async updateSwitch(switchDailyWarning: ISwitchDailyWarning) {
+    const { id, isEnabled, isVehicle, nameVehicle } = switchDailyWarning
+    
+    if (isVehicle && nameVehicle) {
+      await this.drizzleService.db
+        .update(this.DTdailyWarningsVehicle)
+        .set({ isEnabled: !isEnabled })
+        .where(and(eq(this.DTdailyWarningsVehicle.vehicleName, nameVehicle), eq(this.DTdailyWarningsVehicle.dailyWarningsId, id)))
+    } else {
+      await this.drizzleService.db
+        .update(this.DTdailyWarnings)
+        .set({ isEnabled: !isEnabled })
+        .where(eq(this.DTdailyWarnings.id, id))
+    }
+    return jsonSucecced
+  }
+
   async updateSendId(id: number, isSend: boolean = false) {
     await this.drizzleService.db
-      .update(databaseSchema.dailyWarningSends)
+      .update(this.DTdailyWarningSends)
       .set({ isSend: isSend })
-      .where(eq(databaseSchema.dailyWarningSends.warningVehicleId, id))
+      .where(eq(this.DTdailyWarningSends.warningVehicleId, id))
   }
 
   async delete(id: number) {

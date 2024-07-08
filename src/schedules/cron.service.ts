@@ -53,9 +53,4 @@ export class CronService {
   async runEvery11pmDailyWarning() {
     await this.runEvery7amDailyWarning()
   }
-
-  @Timeout(360000)
-  onceAfter1hours() {
-    console.log('Called once after 1 hours');
-  }
 }

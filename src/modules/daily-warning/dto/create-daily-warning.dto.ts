@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsNotEmpty, IsOptional } from 'class-validator'
+import { IsString, IsInt, IsNotEmpty, IsOptional, IsArray } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 
 export class CreateDailyWarningDto {
@@ -68,3 +68,10 @@ export class ParamDailyWarningDto {
   @IsOptional()
   search?: string | null
 }
+
+export class DeletedDailyWarningDto {
+  @ApiProperty()
+  @IsArray()
+  listDeleted?: Array<number>
+}
+

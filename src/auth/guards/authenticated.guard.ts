@@ -17,7 +17,6 @@ export class AuthenticatedGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const token = request.headers['x-mobicam-token'];
-
     if (token) {
       try {
         const payload = await this.jwtService.decode(token);

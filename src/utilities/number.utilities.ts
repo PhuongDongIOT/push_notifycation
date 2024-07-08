@@ -1,8 +1,15 @@
 const toNumber = (item: any) : number => {
-    const itemReturn = parseInt(item) ?? 0;
+    if(!item) return 0
+    const itemReturn: number = parseInt(item) ?? 0;
+    return itemReturn
+}
+
+const numberToBoolean = (item: string | boolean): boolean => {
+    const itemReturn = typeof item === 'boolean' ? item : toNumber(item) ? true : false
     return itemReturn
 }
 
 export {
-    toNumber
+    toNumber,
+    numberToBoolean
 }

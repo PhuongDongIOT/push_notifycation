@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { CacheModule } from '@nestjs/cache-manager'
 import { HttpModule } from '@nestjs/axios'
-
 import { DailyWarningService } from './daily-warning.service'
 import { DailyWarningController } from './daily-warning.controller'
 

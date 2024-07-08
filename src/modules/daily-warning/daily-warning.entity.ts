@@ -134,6 +134,10 @@ interface ISwitchDailyWarning {
 }
 
 
+type IImportXcel = {
+    [k: string]: string
+}
+
 export {
     DailyWarning,
     DailyWarningAdd,
@@ -145,5 +149,6 @@ export {
     IVehicleDailyWarning,
     IParamDailyWarning,
     IParamDailyWarningFilter,
-    ISwitchDailyWarning
+    ISwitchDailyWarning,
+    IImportXcel
 }
